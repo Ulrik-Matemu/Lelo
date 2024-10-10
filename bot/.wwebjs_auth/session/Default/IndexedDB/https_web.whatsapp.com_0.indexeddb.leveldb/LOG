@@ -1,0 +1,13 @@
+2024/10/10-17:32:17.598 1c58 Reusing MANIFEST C:\Users\vlet\Desktop\Shit from My Desktop\A bunch of projects\Portfolio\Lelo4WhatsApp2.0\bot\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/10/10-17:32:17.608 1c58 Recovering log #61
+2024/10/10-17:32:17.654 1c58 Reusing old log C:\Users\vlet\Desktop\Shit from My Desktop\A bunch of projects\Portfolio\Lelo4WhatsApp2.0\bot\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000061.log 
+2024/10/10-17:32:23.355 1c10 Level-0 table #66: started
+2024/10/10-17:32:23.383 1c10 Level-0 table #66: 188926 bytes OK
+2024/10/10-17:32:23.387 1c10 Delete type=0 #61
+2024/10/10-17:32:23.388 1c10 Manual compaction at level-0 from '\x00\x1d\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1e\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/10/10-17:32:28.299 40b0 Compacting 1@1 + 1@2 files
+2024/10/10-17:32:28.567 40b0 Generated table #67@1: 47237 keys, 1919954 bytes
+2024/10/10-17:32:28.567 40b0 Compacted 1@1 + 1@2 files => 1919954 bytes
+2024/10/10-17:32:28.570 40b0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2024/10/10-17:32:28.570 40b0 Delete type=2 #63
+2024/10/10-17:32:28.570 40b0 Delete type=2 #66
