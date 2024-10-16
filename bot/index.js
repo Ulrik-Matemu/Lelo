@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = 'AIzaSyD5FSHCfoLp-fcYADVhjthGHYbBenSJX80';
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
