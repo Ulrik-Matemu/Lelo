@@ -24,11 +24,39 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-    console.log('New message received:', message.body);
-    
-    if (!message.isGroupMsg) {
-        const response = await generateAIResponse(message.body);
-        await message.reply(response);
+    try {
+        console.log('New message received:', message.body);
+        
+        // Handle direct messages
+        if (!message.isGroupMsg) {
+            const response = await generateAIResponse(message.body);
+            await client.sendMessage(message.from, response);
+            return;
+        }
+        
+        // Handle group messages with quoted text
+        if (message.isGroupMsg && message.hasQuotedMsg) {
+            try {
+                const quotedMessage = await message.getQuotedMessage();
+                if (quotedMessage && quotedMessage.body) {
+                    console.log('Processing quoted message:', quotedMessage.body);
+                    const response = await generateAIResponse(quotedMessage.body);
+                    await client.sendMessage(message.from, response);
+                }
+            } catch (quotedError) {
+                console.error('Error handling quoted message:', quotedError);
+                await client.sendMessage(message.from, 'Sorry, I could not access the quoted message. Please try quoting the message again.');
+            }
+            return;
+        }
+
+    } catch (error) {
+        console.error('Error processing message:', error);
+        try {
+            await client.sendMessage(message.from, 'Sorry, I encountered an error. Please try again.');
+        } catch (sendError) {
+            console.error('Error sending error message:', sendError);
+        }
     }
 });
 
@@ -36,13 +64,9 @@ const generateAIResponse = async (message) => {
     try {
         const completion = await model.generateContent(message);
         const aiResponse = completion.response.text();
-        if (aiResponse) {
-            return aiResponse;
-        } else {
-            return 'I apologize, but I couldn';
-        }
+        return aiResponse || 'I apologize, but I was unable to generate a response.';
     } catch (err) {
-        console.error('Failed to generate response: ', err);
+        console.error('Failed to generate AI response:', err);
         return 'I encountered an error while processing your request. Please try again later.';
     }
 };
