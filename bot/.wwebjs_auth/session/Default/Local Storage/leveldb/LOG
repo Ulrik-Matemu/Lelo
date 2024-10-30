@@ -1,3 +1,6 @@
-2024/10/29-13:40:24.393 1c05 Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
-2024/10/29-13:40:24.394 1c05 Recovering log #4
-2024/10/29-13:40:24.395 1c05 Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/Local Storage/leveldb/000004.log 
+2024/10/30-22:47:28.189 5d3d Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2024/10/30-22:47:28.190 5d3d Recovering log #4
+2024/10/30-22:47:28.190 5d3d Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/Local Storage/leveldb/000004.log 
+2024/10/30-22:57:43.535 5efc Level-0 table #8: started
+2024/10/30-22:57:43.544 5efc Level-0 table #8: 14691 bytes OK
+2024/10/30-22:57:43.554 5efc Delete type=0 #4

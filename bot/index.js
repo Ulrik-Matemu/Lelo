@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
-const API_KEY = 'AIzaSyD5FSHCfoLp-fcYADVhjthGHYbBenSJX80';
+const API_KEY = process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -26,15 +26,20 @@ client.on('ready', () => {
 client.on('message', async (message) => {
     try {
         console.log('New message received:', message.body);
-        
+
+        // Ignore status and ephemeral (disappearing) messages
+        if (message.type === 'status' || message.type === 'ephemeral') {
+            return;
+        }
+
         // Handle direct messages
         if (!message.isGroupMsg) {
             const response = await generateAIResponse(message.body);
             await client.sendMessage(message.from, response);
             return;
         }
-        
-        // Handle group messages with quoted text
+
+        // Handle group messages with quoted text only
         if (message.isGroupMsg && message.hasQuotedMsg) {
             try {
                 const quotedMessage = await message.getQuotedMessage();
@@ -70,5 +75,14 @@ const generateAIResponse = async (message) => {
         return 'I encountered an error while processing your request. Please try again later.';
     }
 };
+
+setInterval(async () => {
+    try {
+        const chatId = '255764903468@c.us';
+        await client.sendMessage(chatId, 'keep-alive bot');
+    } catch (error) {
+        console.error('Error sending keep-alive message', error);
+    }
+}, 5 * 60 * 1000);
 
 client.initialize();
