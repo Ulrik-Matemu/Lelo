@@ -77,6 +77,7 @@ const client = new Client({
     authStrategy: new RedisLocalAuth(),
     puppeteer: {
         headless: true,
+        timeout: 0,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -85,8 +86,9 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--single-process',
-            '--disable-gpu'
-        ]
+            '--disable-gpu',
+            '--disable-software-rasterizer'
+        ],
     }
 });
 
@@ -187,11 +189,21 @@ client.on('message', async (message) => {
 setInterval(async () => {
     try {
         const chatId = '255764903468@c.us';
-        await client.sendMessage(chatId, 'keep-alive bot');
+        await client.sendMessage(chatId, 'still alive');
     } catch (error) {
         console.error('Error sending keep-alive message:', error);
     }
-}, 5 * 60 * 1000);
+}, 30 * 60 * 1000);
+
+setInterval(async () => {
+    try {
+        await client.pupBrowser.pages(); // Ping the Puppeteer browser
+    } catch (error) {
+        console.error('Keep-alive error:', error);
+        client.initialize(); // Re-initialize client if ping fails
+    }
+}, 30000); // Pings every 30 seconds
+
 
 // Graceful shutdown handling
 process.on('SIGTERM', async () => {
