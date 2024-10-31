@@ -9,9 +9,12 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Setup health check endpoint
+// Enhanced health check endpoint
 app.get('/', (req, res) => {
-    res.send('WhatsApp bot is running!');
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+    });
 });
 
 app.listen(port, () => {
@@ -29,150 +32,218 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Retry configuration
+// Enhanced retry configuration
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
+const INITIAL_RETRY_DELAY = 1000;
+const MAX_RETRY_DELAY = 10000;
 
-// Set up Redis client
-const redisClient = createClient({
-    password: process.env.REDIS_PASSWORD,
-    socket: {
-        host: 'redis-12807.c325.us-east-1-4.ec2.redns.redis-cloud.com',
-        port: 12807
-    }
-});
+// Set up Redis client with reconnection logic
+const createRedisClient = () => {
+    const client = createClient({
+        password: process.env.REDIS_PASSWORD,
+        socket: {
+            host: 'redis-12807.c325.us-east-1-4.ec2.redns.redis-cloud.com',
+            port: 12807
+        },
+        retry_strategy: function(options) {
+            if (options.error && options.error.code === 'ECONNREFUSED') {
+                return new Error('The server refused the connection');
+            }
+            if (options.total_retry_time > 1000 * 60 * 60) {
+                return new Error('Retry time exhausted');
+            }
+            if (options.attempt > 10) {
+                return undefined;
+            }
+            return Math.min(options.attempt * 100, 3000);
+        }
+    });
 
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+    client.on('error', (err) => console.log('Redis Client Error', err));
+    client.on('reconnecting', () => console.log('Redis Client reconnecting...'));
+    client.on('connect', () => console.log('Redis Client connected'));
+
+    return client;
+};
+
+const redisClient = createRedisClient();
 
 (async () => {
     await redisClient.connect();
     console.log("Connected to Redis successfully!");
 })();
 
-// Extend LocalAuth with Redis-based session storage
+// Enhanced Redis-based session storage
 class RedisLocalAuth extends LocalAuth {
     constructor(options = {}) {
         super(options);
+        this.sessionKey = 'whatsapp-session';
     }
 
     async saveSession(data) {
-        await redisClient.set('whatsapp-session', JSON.stringify(data));
+        try {
+            await redisClient.set(this.sessionKey, JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving session:', error);
+            throw error;
+        }
     }
 
     async loadSession() {
-        const session = await redisClient.get('whatsapp-session');
-        return session ? JSON.parse(session) : null;
+        try {
+            const session = await redisClient.get(this.sessionKey);
+            return session ? JSON.parse(session) : null;
+        } catch (error) {
+            console.error('Error loading session:', error);
+            return null;
+        }
     }
 
     async clearSession() {
-        await redisClient.del('whatsapp-session');
+        try {
+            await redisClient.del(this.sessionKey);
+        } catch (error) {
+            console.error('Error clearing session:', error);
+            throw error;
+        }
     }
 }
 
-// Utility function for delay
+// Enhanced utility functions
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const exponentialBackoff = (retryCount) => {
+    const backoff = Math.min(
+        INITIAL_RETRY_DELAY * Math.pow(2, retryCount),
+        MAX_RETRY_DELAY
+    );
+    return backoff + Math.random() * 1000; // Add jitter
+};
+
 // Initialize WhatsApp client with enhanced Puppeteer configuration
-const client = new Client({
-    authStrategy: new RedisLocalAuth(),
-    puppeteer: {
-        headless: true,
-        timeout: 0,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-gpu',
-            '--disable-software-rasterizer'
-        ],
-    }
-});
+const createWhatsAppClient = () => {
+    return new Client({
+        authStrategy: new RedisLocalAuth(),
+        puppeteer: {
+            headless: true,
+            timeout: 0,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-gpu',
+                '--disable-software-rasterizer',
+                '--disable-extensions',
+                '--disable-infobars',
+                '--window-position=0,0',
+                '--ignore-certificate-errors',
+                '--ignore-certificate-errors-spki-list',
+                '--disable-features=IsolateOrigins,site-per-process'
+            ],
+            ignoreHTTPSErrors: true,
+            defaultViewport: null
+        }
+    });
+};
+
+let client = createWhatsAppClient();
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 // Enhanced error handling for WhatsApp client
-client.on('disconnected', (reason) => {
-    console.log('Client was disconnected:', reason);
-    setTimeout(() => {
-        console.log('Attempting to reconnect...');
-        client.initialize();
-    }, 5000);
-});
+const setupClientListeners = (client) => {
+    client.on('disconnected', async (reason) => {
+        console.log('Client was disconnected:', reason);
+        
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            const backoffTime = exponentialBackoff(reconnectAttempts);
+            console.log(`Attempting to reconnect in ${backoffTime}ms...`);
+            await delay(backoffTime);
+            
+            try {
+                await client.destroy();
+                client = createWhatsAppClient();
+                setupClientListeners(client);
+                await client.initialize();
+                reconnectAttempts++;
+            } catch (error) {
+                console.error('Reconnection failed:', error);
+            }
+        } else {
+            console.error('Max reconnection attempts reached. Manual intervention required.');
+            process.exit(1);
+        }
+    });
 
-client.on('auth_failure', (msg) => {
-    console.error('Authentication failure:', msg);
-});
+    client.on('auth_failure', async (msg) => {
+        console.error('Authentication failure:', msg);
+        await redisClient.del('whatsapp-session');
+        process.exit(1);
+    });
 
-// QR code event
-client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
-    qrcode.generate(qr, { small: true });
-});
+    client.on('qr', (qr) => {
+        console.log('QR RECEIVED');
+        qrcode.generate(qr, { small: true });
+    });
 
-// Ready event
-client.on('ready', () => {
-    console.log('Client is ready!');
-});
+    client.on('ready', () => {
+        console.log('Client is ready!');
+        reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+    });
+};
 
-// AI Response generator with enhanced error handling and retry logic
+// Enhanced AI Response generator
 const generateAIResponse = async (message, retryCount = 0) => {
     try {
-        // Add timeout to the fetch request
+        const timeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 30000)
+        );
+
         const completion = await Promise.race([
             model.generateContent(message),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Request timeout')), 30000)
-            )
+            timeout
         ]);
 
-        const aiResponse = completion.response.text();
-        return aiResponse || 'I apologize, but I was unable to generate a response.';
+        return completion.response.text() || 'I apologize, but I was unable to generate a response.';
     } catch (err) {
         console.error(`Failed to generate AI response (attempt ${retryCount + 1}):`, err);
 
-        // Check if we should retry
         if (retryCount < MAX_RETRIES) {
-            console.log(`Retrying in ${RETRY_DELAY}ms...`);
-            await delay(RETRY_DELAY * (retryCount + 1)); // Exponential backoff
+            const backoffTime = exponentialBackoff(retryCount);
+            console.log(`Retrying in ${backoffTime}ms...`);
+            await delay(backoffTime);
             return generateAIResponse(message, retryCount + 1);
         }
 
-        // If all retries failed, return error message
         return 'I encountered a network error while processing your request. Please try again later.';
     }
 };
 
-// Message event handling with enhanced error handling
-client.on('message', async (message) => {
+// Enhanced message handling
+const handleMessage = async (message) => {
     try {
         console.log('New message received:', message.body);
 
-        // Ignore status and ephemeral messages
         if (message.type === 'status' || message.type === 'ephemeral') {
             return;
         }
 
-        // Handle direct messages
         if (!message.isGroupMsg) {
             const response = await generateAIResponse(message.body);
             await client.sendMessage(message.from, response);
             return;
         }
 
-        // Handle group messages with quoted text only
         if (message.isGroupMsg && message.hasQuotedMsg) {
-            try {
-                const quotedMessage = await message.getQuotedMessage();
-                if (quotedMessage && quotedMessage.body) {
-                    console.log('Processing quoted message:', quotedMessage.body);
-                    const response = await generateAIResponse(quotedMessage.body);
-                    await client.sendMessage(message.from, response);
-                }
-            } catch (quotedError) {
-                console.error('Error handling quoted message:', quotedError);
-                await client.sendMessage(message.from, 'Sorry, I could not access the quoted message. Please try quoting the message again.');
+            const quotedMessage = await message.getQuotedMessage();
+            if (quotedMessage?.body) {
+                console.log('Processing quoted message:', quotedMessage.body);
+                const response = await generateAIResponse(quotedMessage.body);
+                await client.sendMessage(message.from, response);
             }
         }
     } catch (error) {
@@ -183,40 +254,75 @@ client.on('message', async (message) => {
             console.error('Error sending error message:', sendError);
         }
     }
-});
+};
 
-// Keep-alive interval with error handling
-setInterval(async () => {
+client.on('message', handleMessage);
+
+// Enhanced keep-alive mechanism
+const keepAliveInterval = 30 * 60 * 1000; // 30 minutes
+const browserPingInterval = 30000; // 30 seconds
+
+let keepAliveTimer = setInterval(async () => {
     try {
         const chatId = '255764903468@c.us';
         await client.sendMessage(chatId, 'still alive');
     } catch (error) {
         console.error('Error sending keep-alive message:', error);
     }
-}, 30 * 60 * 1000);
+}, keepAliveInterval);
 
-setInterval(async () => {
+let browserPingTimer = setInterval(async () => {
     try {
-        await client.pupBrowser.pages(); // Ping the Puppeteer browser
+        if (client.pupBrowser) {
+            const pages = await client.pupBrowser.pages();
+            if (!pages || pages.length === 0) {
+                throw new Error('No pages available');
+            }
+        }
     } catch (error) {
-        console.error('Keep-alive error:', error);
-        client.initialize(); // Re-initialize client if ping fails
+        console.error('Browser ping failed:', error);
+        clearInterval(browserPingTimer);
+        clearInterval(keepAliveTimer);
+        
+        try {
+            await client.destroy();
+            client = createWhatsAppClient();
+            setupClientListeners(client);
+            await client.initialize();
+            
+            // Restart timers
+            browserPingTimer = setInterval(browserPing, browserPingInterval);
+            keepAliveTimer = setInterval(keepAlive, keepAliveInterval);
+        } catch (reinitError) {
+            console.error('Failed to reinitialize client:', reinitError);
+        }
     }
-}, 30000); // Pings every 30 seconds
+}, browserPingInterval);
 
-
-// Graceful shutdown handling
-process.on('SIGTERM', async () => {
-    console.log('SIGTERM received. Cleaning up...');
+// Enhanced graceful shutdown
+const cleanup = async () => {
+    console.log('Cleaning up...');
+    clearInterval(browserPingTimer);
+    clearInterval(keepAliveTimer);
+    
     try {
         await client.destroy();
         await redisClient.quit();
+        console.log('Cleanup completed successfully');
         process.exit(0);
     } catch (error) {
         console.error('Error during cleanup:', error);
         process.exit(1);
     }
+};
+
+process.on('SIGTERM', cleanup);
+process.on('SIGINT', cleanup);
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    cleanup();
 });
 
 // Initialize WhatsApp client
+setupClientListeners(client);
 client.initialize();
