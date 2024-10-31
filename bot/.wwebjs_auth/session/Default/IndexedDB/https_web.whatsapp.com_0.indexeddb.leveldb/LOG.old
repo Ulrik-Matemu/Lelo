@@ -1,23 +1,15 @@
-2024/10/31-07:09:59.570 1216 Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2024/10/31-07:09:59.570 1216 Recovering log #174
-2024/10/31-07:09:59.570 1216 Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000174.log 
-2024/10/31-07:10:02.297 1214 Compacting 1@1 + 2@2 files
-2024/10/31-07:10:02.416 1214 Generated table #177@1: 59682 keys, 2234173 bytes
-2024/10/31-07:10:02.499 1214 Generated table #178@1: 34754 keys, 1815819 bytes
-2024/10/31-07:10:02.499 1214 Compacted 1@1 + 2@2 files => 4049992 bytes
-2024/10/31-07:10:02.506 1214 compacted to: files[ 0 0 2 0 0 0 0 ]
-2024/10/31-07:10:02.507 1214 Delete type=2 #171
-2024/10/31-07:10:02.507 1214 Delete type=2 #175
-2024/10/31-07:10:02.507 1214 Delete type=2 #172
-2024/10/31-07:10:02.848 1219 Level-0 table #180: started
-2024/10/31-07:10:02.855 1219 Level-0 table #180: 15926 bytes OK
-2024/10/31-07:10:02.862 1219 Delete type=0 #174
-2024/10/31-07:10:02.862 1219 Manual compaction at level-0 from '\x003\x00\x00\x00' @ 72057594037927935 : 1 .. '\x004\x00\x00\x00' @ 0 : 0; will stop at (end)
-2024/10/31-07:10:07.985 1227 Compacting 1@1 + 2@2 files
-2024/10/31-07:10:08.216 1227 Generated table #181@1: 59764 keys, 2236037 bytes
-2024/10/31-07:10:08.331 1227 Generated table #182@1: 34754 keys, 1815819 bytes
-2024/10/31-07:10:08.331 1227 Compacted 1@1 + 2@2 files => 4051856 bytes
-2024/10/31-07:10:08.339 1227 compacted to: files[ 0 0 2 0 0 0 0 ]
-2024/10/31-07:10:08.339 1227 Delete type=2 #180
-2024/10/31-07:10:08.339 1227 Delete type=2 #177
-2024/10/31-07:10:08.339 1227 Delete type=2 #178
+2024/10/31-08:08:36.933 1f7e Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/10/31-08:08:36.933 1f7e Recovering log #184
+2024/10/31-08:08:37.005 1f7e Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000184.log 
+2024/10/31-08:08:41.643 1f79 Level-0 table #190: started
+2024/10/31-08:08:41.662 1f79 Level-0 table #190: 359384 bytes OK
+2024/10/31-08:08:41.669 1f79 Delete type=0 #184
+2024/10/31-08:08:41.670 1f79 Manual compaction at level-0 from '\x005\x00\x00\x00' @ 72057594037927935 : 1 .. '\x006\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/10/31-08:08:45.803 1f79 Compacting 1@1 + 2@2 files
+2024/10/31-08:08:46.075 1f79 Generated table #191@1: 63066 keys, 2238917 bytes
+2024/10/31-08:08:46.149 1f79 Generated table #192@1: 36107 keys, 2016165 bytes
+2024/10/31-08:08:46.149 1f79 Compacted 1@1 + 2@2 files => 4255082 bytes
+2024/10/31-08:08:46.157 1f79 compacted to: files[ 0 0 2 0 0 0 0 ]
+2024/10/31-08:08:46.157 1f79 Delete type=2 #187
+2024/10/31-08:08:46.157 1f79 Delete type=2 #190
+2024/10/31-08:08:46.157 1f79 Delete type=2 #186

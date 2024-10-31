@@ -1,15 +1,15 @@
-2024/10/31-07:11:23.459 13e9 Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2024/10/31-07:11:23.460 13e9 Recovering log #179
-2024/10/31-07:11:23.545 13e9 Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000179.log 
-2024/10/31-07:11:26.082 13e7 Level-0 table #185: started
-2024/10/31-07:11:26.108 13e7 Level-0 table #185: 672164 bytes OK
-2024/10/31-07:11:26.114 13e7 Delete type=0 #179
-2024/10/31-07:11:26.115 13e7 Manual compaction at level-0 from '\x004\x00\x00\x00' @ 72057594037927935 : 1 .. '\x005\x00\x00\x00' @ 0 : 0; will stop at (end)
-2024/10/31-07:11:30.067 13ea Compacting 1@1 + 2@2 files
-2024/10/31-07:11:30.302 13ea Generated table #186@1: 61954 keys, 2234055 bytes
-2024/10/31-07:11:30.403 13ea Generated table #187@1: 35030 keys, 1962651 bytes
-2024/10/31-07:11:30.403 13ea Compacted 1@1 + 2@2 files => 4196706 bytes
-2024/10/31-07:11:30.409 13ea compacted to: files[ 0 0 2 0 0 0 0 ]
-2024/10/31-07:11:30.409 13ea Delete type=2 #182
-2024/10/31-07:11:30.410 13ea Delete type=2 #181
-2024/10/31-07:11:30.410 13ea Delete type=2 #185
+2024/10/31-08:13:25.835 2243 Reusing MANIFEST /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/10/31-08:13:25.835 2243 Recovering log #189
+2024/10/31-08:13:25.880 2243 Reusing old log /home/ulrik/Desktop/Projects/Personal/LeloWhatApp/bot/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000189.log 
+2024/10/31-08:13:28.792 227c Level-0 table #195: started
+2024/10/31-08:13:28.817 227c Level-0 table #195: 479180 bytes OK
+2024/10/31-08:13:28.822 227c Delete type=0 #189
+2024/10/31-08:13:28.823 227c Manual compaction at level-0 from '\x006\x00\x00\x00' @ 72057594037927935 : 1 .. '\x007\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/10/31-08:13:32.957 227b Compacting 1@1 + 2@2 files
+2024/10/31-08:13:33.206 227b Generated table #196@1: 64584 keys, 2238199 bytes
+2024/10/31-08:13:33.316 227b Generated table #197@1: 36289 keys, 2069401 bytes
+2024/10/31-08:13:33.316 227b Compacted 1@1 + 2@2 files => 4307600 bytes
+2024/10/31-08:13:33.322 227b compacted to: files[ 0 0 2 0 0 0 0 ]
+2024/10/31-08:13:33.322 227b Delete type=2 #191
+2024/10/31-08:13:33.323 227b Delete type=2 #192
+2024/10/31-08:13:33.323 227b Delete type=2 #195
