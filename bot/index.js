@@ -259,8 +259,26 @@ const handleMessage = async (message) => {
 client.on('message', handleMessage);
 
 // Enhanced keep-alive mechanism
-const keepAliveInterval = 30 * 60 * 1000; // 30 minutes
+const keepAliveInterval = [ 32000,
+    45000,
+    54000,
+    68000,
+    75000,
+    92000,
+    105000,
+    113000,
+    126000,
+    138000,
+    143000,
+    159000,
+    170000]; // Random intervals under 3 minutes
 const browserPingInterval = 30000; // 30 seconds
+
+const getRandomInterval = async (arr) => {
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    console.log(arr[randomIndex]);
+     return arr[randomIndex];
+};
 
 let keepAliveTimer = setInterval(async () => {
     try {
@@ -269,7 +287,7 @@ let keepAliveTimer = setInterval(async () => {
     } catch (error) {
         console.error('Error sending keep-alive message:', error);
     }
-}, keepAliveInterval);
+}, 1 * 60 * 1000);
 
 let browserPingTimer = setInterval(async () => {
     try {
